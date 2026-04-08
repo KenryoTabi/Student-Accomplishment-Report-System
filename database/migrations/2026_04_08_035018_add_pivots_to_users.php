@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('section')->nullable()->references('id')->on('sections')->nullOnDelete();
-            $table->foreignId('role')->nullable()->references('id')->on('roles')->nullOnDelete();
+            $table->foreignId('section_id')->after('email')->nullable()->references('id')->on('sections')->nullOnDelete();
+            $table->foreignId('role_id')->after('section_id')->nullable()->references('id')->on('roles')->nullOnDelete();
         });
     }
 

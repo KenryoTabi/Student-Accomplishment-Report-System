@@ -41,6 +41,10 @@ export const userColumns: ColumnDef<User>[] = [
     header: "Role",
   },
   {
+    accessorKey: "section",
+    header: "Section"
+  },
+  {
     accessorKey: "action",
     header: "Action",
   },

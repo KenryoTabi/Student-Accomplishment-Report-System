@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Intern;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Section;
 use Illuminate\Http\Request;
 
 use Inertia\Inertia;
@@ -16,15 +18,16 @@ class UserController extends Controller
     public function index()
     {
         return Inertia::render('users', [
-            'users' => User::with('role')->get()->map(function (User $user) {
+            'users' => User::with(['role', 'section'])->get()->map(function (User $user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'role' => optional($user->role)->name,
-                    'action' => '',
+                    'role' => $user->role?->name,
+                    'section' => $user->section?->code,
                 ];
             }),
             'roles' => Role::select(['id', 'name'])->orderBy('name')->get(),
+            'sections' => Section::select(['id', 'name'])->orderBy('name')->get(),
         ]);
     }
 
@@ -42,25 +45,45 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $internRole = Role::find($request->role);
+        // dd($request);
+
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'employee_id' => 'required|string|unique:users,employee_id',
             'role_id' => 'required|exists:roles,id',
-            'department' => 'required|string|max:255',
+            'section_id' => 'required|exists:sections,id',
             'phone' => 'nullable|string|max:20',
             'password' => 'required|min:8|confirmed',
-        ]);
+        ];
 
-        User::create([
+        if ($internRole && $internRole->name === 'intern') {
+            $rules = array_merge($rules, [
+                'school' => 'required|string|max:255',
+                'course' => 'required|string|max:255',
+                'year_level' => 'required|string|max:50',
+            ]);
+        }
+
+        $request->validate($rules);
+
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'employee_id' => $request->employee_id,
             'role_id' => $request->role_id,
-            'department' => $request->department,
+            'section_id' => $request->section_id,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
         ]);
+
+        if ($internRole && $internRole->name === 'intern') {
+            Intern::create([
+                'user_id' => $user->id,
+                'school' => $request->school,
+                'course' => $request->course,
+                'year_level' => $request->year_level,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User created successfully');
     }

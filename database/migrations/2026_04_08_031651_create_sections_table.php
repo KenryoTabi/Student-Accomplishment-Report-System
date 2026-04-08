@@ -15,12 +15,19 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('code')->unique()->nullable();
             $table->string('description')->nullable();
             $table->timestamps();
         });
 
         DB::table('sections')->insert([
-            ['name' => 'Regional Information and Communications Technology Management Section', 'description' => 'Responsible for managing information and communications technology within the region', 'created_at' => now(), 'updated_at' => now()],
+            [
+                'name' => 'Regional Information and Communications Technology Management Section', 
+                'code' => 'RICTMS', 
+                'description' => 'Responsible for managing information and communications technology within the region', 
+                'created_at' => now(), 
+                'updated_at' => now()
+            ],
         ]);
     }
 
