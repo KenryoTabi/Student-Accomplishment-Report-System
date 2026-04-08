@@ -13,7 +13,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class)->name('index', 'users');
     
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
-    // Route::inertia('users', 'users')->name('users');
     Route::inertia('accomplishment','accomplishment')->name('accomplishment');
 
 });
