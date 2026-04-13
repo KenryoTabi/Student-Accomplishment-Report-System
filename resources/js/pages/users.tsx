@@ -13,6 +13,7 @@ import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRef, useState } from 'react';
 import UserController from '@/actions/App/Http/Controllers/UserController';
+import AddUserForm from '@/layouts/form/add-user-form';
 
 
 Users.layout = {
@@ -24,30 +25,12 @@ Users.layout = {
     ],
 };
 
-type RoleOption = {
-    id: number
-    name: string
-}
-
-type SectionOption = {
-    id: number
-    name: string
-}
-
 type PageProps = {
     users: User[]
-    roles: RoleOption[]
-    sections: SectionOption[]
 }
-
 
 export default function Users() {
     const passwordInput = useRef<HTMLInputElement>(null);
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(undefined);
-    const [selectedSectionId, setSelectedSectionId] = useState<string | undefined>(undefined);
-
-    const resetFormRef = useRef<(() => void) | null>(null);
 
     function displayUsers(): User[] {
         const { users } = usePage<PageProps>().props;
@@ -60,28 +43,6 @@ export default function Users() {
         return users;
     }
 
-    function getRoles(): RoleOption[] {
-        const { roles } = usePage<PageProps>().props;
-
-        return roles;
-    }
-
-    function getSections(): SectionOption[] {
-        const { sections } = usePage<PageProps>().props;
-
-        return sections;
-    }
-
-    function handleDialogOpenChange(open: boolean) {
-        if (!open) {
-            setSelectedRoleId(undefined);
-            setSelectedSectionId(undefined);
-            resetFormRef.current?.();
-        }
-
-        setDialogOpen(open);
-    }
-
     return (
         <>
             <Head title="Accomplishment" />
@@ -91,7 +52,7 @@ export default function Users() {
                 <div className='flex gap-4 w-full'>
                     <div className='flex-1'>
                         <Input placeholder='Search Users' className='w-full rounded-lg border border-sidebar-border/70 dark:border-sidebar-border bg-transparent py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary' />
-                    </div>
+                        </div>
                     <div className='ml-auto'>
                         <Link 
                             className='flex flex-row gap-2 text-black bg-white py-2 px-4 cursor-pointer rounded-lg border text-sm font-sm align-center' 
@@ -101,186 +62,7 @@ export default function Users() {
                     </div>
                     
                     <div>
-                        <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    Create User
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className='sm:max-w-xl w-full'>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <DialogTitle>Create User</DialogTitle>
-                                        <DialogDescription>
-                                            Add a new user to the system. Fill in the details below.
-                                        </DialogDescription>
-                                    </div>
-                                    <Form
-                                        {...UserController.store.form()}
-                                        resetOnSuccess
-                                        
-                                        onError={() => {
-                                            passwordInput.current?.focus();
-                                        }}
-                                        className="space-y-6"
-                                    >
-                                        {({ resetAndClearErrors, processing, errors }) => {
-                                        resetFormRef.current = resetAndClearErrors;
-
-                                        return (
-                                            <>
-                                                <div className="grid gap-4 md:grid-cols-2">
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="name">Full Name</Label>
-                                                        <Input
-                                                            id="name"
-                                                            name="name"
-                                                            type="text"
-                                                            placeholder="Enter full name"
-                                                        />
-                                                        <InputError message={errors.name} />
-                                                    </div>
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="email">Email Address</Label>
-                                                        <Input
-                                                            id="email"
-                                                            name="email"
-                                                            type="email"
-                                                            placeholder="Enter email address"
-                                                        />
-                                                        <InputError message={errors.email} />
-                                                    </div>
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="role_id">Role</Label>
-                                                        <Select
-                                                            name="role_id"
-                                                            value={selectedRoleId}
-                                                            onValueChange={(value) => setSelectedRoleId(value)}
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select a role" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {getRoles().map((role) => (
-                                                                    <SelectItem key={role.id} value={String(role.id)}>
-                                                                        {role.name}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <InputError message={errors.role_id} />
-                                                    </div>
-                                                    
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="phone">Phone Number</Label>
-                                                        <Input
-                                                            id="phone"
-                                                            name="phone"
-                                                            type="tel"
-                                                            placeholder="Enter phone number"
-                                                        />
-                                                        <InputError message={errors.phone} />
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="section_id">Section</Label>
-                                                    <Select
-                                                        name="section_id"
-                                                        value={selectedSectionId}
-                                                        onValueChange={(value) => setSelectedSectionId(value)}
-                                                    >
-                                                        <SelectTrigger className="w-full overflow-hidden">
-                                                            <SelectValue placeholder="Select a section" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {getSections().map((section) => (
-                                                                <SelectItem key={section.id} value={String(section.id)}>
-                                                                    {section.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <InputError message={errors.section_id} />
-                                                </div>
-
-                                                {getRoles().find((role) => String(role.id) === selectedRoleId)?.name === 'intern' ? (
-                                                    <div className="rounded-lg border border-muted p-4 bg-muted/50">
-                                                        <div className="mb-3 font-semibold">Intern / Student details</div>
-                                                        <div className="grid gap-4 md:grid-cols-2">
-                                                            <div className="grid gap-2 md:col-span-2">
-                                                                <Label htmlFor="school">School</Label>
-                                                                <Input
-                                                                    id="school"
-                                                                    name="school"
-                                                                    type="text"
-                                                                    placeholder="Enter school name"
-                                                                />
-                                                                <InputError message={errors.school} />
-                                                            </div>
-                                                            <div className="grid gap-2">
-                                                                <Label htmlFor="course">Course</Label>
-                                                                <Input
-                                                                    id="course"
-                                                                    name="course"
-                                                                    type="text"
-                                                                    placeholder="Enter course or program"
-                                                                />
-                                                                <InputError message={errors.course} />
-                                                            </div>
-                                                            <div className="grid gap-2">
-                                                                <Label htmlFor="year_level">Year Level</Label>
-                                                                <Input
-                                                                    id="year_level"
-                                                                    name="year_level"
-                                                                    type="text"
-                                                                    placeholder="Enter year level"
-                                                                />
-                                                                <InputError message={errors.year_level} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ) : null}
-
-                                                <div className="grid gap-4 md:grid-cols-2">
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="password">Password</Label>
-                                                        <PasswordInput
-                                                            id="password"
-                                                            name="password"
-                                                            ref={passwordInput}
-                                                            placeholder="Enter password"
-                                                        />
-                                                        <InputError message={errors.password} />
-                                                    </div>
-                                                    <div className="grid gap-2">
-                                                        <Label htmlFor="password_confirmation">Confirm Password</Label>
-                                                        <PasswordInput
-                                                            id="password_confirmation"
-                                                            name="password_confirmation"
-                                                            placeholder="Confirm password"
-                                                        />
-                                                        <InputError message={errors.password_confirmation} />
-                                                    </div>
-                                                </div>
-
-                                                <DialogFooter className="gap-2">
-                                                    <DialogClose asChild>
-                                                        <Button type="button" variant="outline">
-                                                            Cancel
-                                                        </Button>
-                                                    </DialogClose>
-                                                    <Button type="submit" disabled={processing}>
-                                                        Create User
-                                                    </Button>
-                                                </DialogFooter>
-                                            </>
-                                        )}
-                                    }
-                                    </Form>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                        <AddUserForm/>
                     </div>
                 </div>
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">                    

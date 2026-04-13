@@ -14,3 +14,13 @@ export type AuthLayoutProps = {
     title?: string;
     description?: string;
 };
+
+export type DialogProps = {
+    trigger: ReactNode;
+    title: string;
+    description?: string;
+    children: (args: {
+        close: () => void;
+        resetRef: React.RefObject<(() => void) | null>;
+    }) => ReactNode;
+};

@@ -1,33 +1,43 @@
 import { ColumnDef } from "@tanstack/react-table"
+import { Button } from "./ui/button"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
+
+export type Task = {
   id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
+  user: string,
+  action: Object
 }
 
 export type User = {
   id: string
   name: string
   role: string
-  action: string
+  action: Object
 }
 
-export const columns: ColumnDef<Payment>[] = [
+
+export const taskColumns: ColumnDef<Task>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "id",
+    header: "Task Id",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "user",
+    header: "User",
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    id: "action",
+    header: "Action",
+    cell: ({ row }) => {
+      return (
+        <>
+          <Button variant="outline">View</Button>
+          
+        </>
+      )
+    }
   },
 ]
 
@@ -45,7 +55,16 @@ export const userColumns: ColumnDef<User>[] = [
     header: "Section"
   },
   {
-    accessorKey: "action",
+    id: "action",
     header: "Action",
+    cell: ({ row }) => {
+      const user = row.original
+      return (
+        <>
+          <Button variant="outline">Edit</Button>
+          
+        </>
+      )
+    }
   },
 ]
