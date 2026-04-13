@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { BreadcrumbItem } from '@/types/navigation';
+import { DateRange } from 'react-day-picker';
 
 export type AppLayoutProps = {
     children: ReactNode;
@@ -23,4 +24,10 @@ export type DialogProps = {
         close: () => void;
         resetRef: React.RefObject<(() => void) | null>;
     }) => ReactNode;
+};
+
+export type DatePickerProps = {
+    title: string;
+    date: DateRange | undefined;
+    onChange: (date: DateRange | undefined) => void;
 };

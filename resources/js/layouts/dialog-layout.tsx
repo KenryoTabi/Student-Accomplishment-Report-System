@@ -32,9 +32,9 @@ export default function DialogLayout({
                     <DialogTrigger asChild>
                         {trigger}
                     </DialogTrigger>
-                    <DialogContent className='sm:max-w-xl w-full'>
+                    <DialogContent className='sm:max-w-xl w-full overflow-y-auto [&::-webkit-scrollbar]:hidden'>
                         <div className="space-y-4">
-                            <div className="space-y-2">
+                            <div className="space-y-2 text-center">
                                 <DialogTitle>{title}</DialogTitle>
                                 {description && (
                                     <DialogDescription>
