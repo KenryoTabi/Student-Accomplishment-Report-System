@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, FolderGit2, LayoutGrid, User2Icon, ClipboardListIcon } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -15,39 +15,41 @@ import {
 } from '@/components/ui/sidebar';
 import { accomplishment, dashboard, users } from '@/routes';
 import type { NavItem } from '@/types';
+import { useRole } from '@/hooks/use-role';
+import { ROLES } from '@/constants/roles';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+        roles: [ROLES.ADMIN, ROLES.EMPLOYEE, ROLES.STUDENT],
     },
     {
         title: 'Accomplishments',
         href: accomplishment(),
         icon: ClipboardListIcon,
+        roles: [ROLES.ADMIN, ROLES.EMPLOYEE, ROLES.STUDENT],
     },
     {
         title: 'Users',
         href: users(),
         icon: User2Icon,
+        roles: [ROLES.ADMIN]
     }
 ];
 
 const footerNavItems: NavItem[] = [
-    // {
-    //     title: 'Repository',
-    //     href: 'https://github.com/laravel/react-starter-kit',
-    //     icon: FolderGit2,
-    // },
-    // {
-    //     title: 'Documentation',
-    //     href: 'https://laravel.com/docs/starter-kits#react',
-    //     icon: BookOpen,
-    // },
+
 ];
 
 export function AppSidebar() {
+    const { roleId } = useRole();
+
+    const filteredNavItems = mainNavItems.filter(item =>
+        !item.roles || item.roles.includes(roleId)
+    );
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -63,7 +65,8 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+
+                <NavMain items={filteredNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

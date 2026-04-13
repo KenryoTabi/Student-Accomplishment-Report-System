@@ -12,7 +12,7 @@ Route::inertia('/', 'welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class)->name('index', 'users');
     
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
     Route::inertia('accomplishment','accomplishment')->name('accomplishment');
 
 });
