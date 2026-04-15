@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use Inertia\Inertia;
+use App\Constants\AppConstants;
+use PragmaRX\Google2FA\Support\Constants;
 
 class TaskController extends Controller
 {
@@ -23,17 +25,17 @@ class TaskController extends Controller
         $user = Auth::user();
 
         switch ($user->role_id) {
-            case 1: 
+            case AppConstants::USER_ROLE_ADMIN: 
                 $accomplishments = Task::with(['user'])->get();
                 break;
 
-            case 2:
+            case AppConstants::USER_ROLE_SUPERVISOR:
                 $accomplishments = Task::whereHas('user', function ($query) use ($user) {
-                    $query->where('section_id', $user->section_id);
+                    $query->where('id', $user->id);
                 })->with(['user'])->get();
                 break;
 
-            case 3:
+            case AppConstants::USER_ROLE_STUDENT:
                 $accomplishments = Task::where('user_id', $user->id)->with(['user'])->get();
                 break;
 
@@ -41,7 +43,7 @@ class TaskController extends Controller
                 $accomplishments = collect(); // Empty collection for unknown roles
         }
         return Inertia::render('user-tasks', [
-            'accomplishments' => $accomplishments->map(function (Task $accomplishment) {
+            'tasks' => $accomplishments->map(function (Task $accomplishment) {
                 return [
                     'id' => $accomplishment->id,
                     'description' => $accomplishment->description,

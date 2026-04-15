@@ -7,6 +7,7 @@ import { Button } from "./ui/button"
 export type Task = {
   id: string
   user: string,
+  description: string,
   action: Object
 }
 
@@ -26,6 +27,10 @@ export const taskColumns: ColumnDef<Task>[] = [
   {
     accessorKey: "user",
     header: "User",
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
   },
   {
     id: "action",

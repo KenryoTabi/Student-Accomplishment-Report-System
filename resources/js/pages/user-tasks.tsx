@@ -1,4 +1,4 @@
-import { Form, Head, Link } from '@inertiajs/react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
 import { userTasks } from '@/routes';
@@ -23,16 +23,18 @@ import { CirclePlusIcon, Plus, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { TaskForm } from '@/layouts/form/add-task-form';
 
-function getData(): Task[] {
-    
-    const $controller = new TaskController();
-    return [
 
-    ]
-
+type PageProps = {
+    tasks: Task[]
 }
-
 export default function UserTasks() {
+    function getData(): Task[] {
+        const { tasks } = usePage<PageProps>().props;
+
+        console.log(tasks);
+        return tasks;
+    }
+
     const { roleId } = useRole();
 
     const resetFormRef = useRef<(() => void) | null>(null);
