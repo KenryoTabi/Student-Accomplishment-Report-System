@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccomplishmentController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -11,9 +12,10 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class)->name('index', 'users');
-    
+    Route::resource('accomplishment', AccomplishmentController::class)->name('index', 'accomplishment');
+
     Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
-    Route::inertia('accomplishment','accomplishment')->name('accomplishment');
+    // Route::inertia('accomplishment','accomplishment')->name('accomplishment');
 
 });
 

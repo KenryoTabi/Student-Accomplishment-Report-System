@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AccomplishmentReports extends Model
+class AccomplishmentReport extends Model
 {
     //
 }

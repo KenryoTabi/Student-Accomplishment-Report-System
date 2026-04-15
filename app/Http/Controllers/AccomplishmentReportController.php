@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AccomplishmentReports;
+use App\Models\AccomplishmentReport;
 use Illuminate\Http\Request;
 
-class AccomplishmentReportsController extends Controller
+class AccomplishmentReportController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class AccomplishmentReportsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AccomplishmentReports $accomplishmentReports)
+    public function show(AccomplishmentReport $accomplishmentReport)
     {
         //
     }
@@ -42,7 +42,7 @@ class AccomplishmentReportsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AccomplishmentReports $accomplishmentReports)
+    public function edit(AccomplishmentReport $accomplishmentReport)
     {
         //
     }
@@ -50,7 +50,7 @@ class AccomplishmentReportsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AccomplishmentReports $accomplishmentReports)
+    public function update(Request $request, AccomplishmentReport $accomplishmentReport)
     {
         //
     }
@@ -58,7 +58,7 @@ class AccomplishmentReportsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AccomplishmentReports $accomplishmentReports)
+    public function destroy(AccomplishmentReport $accomplishmentReport)
     {
         //
     }

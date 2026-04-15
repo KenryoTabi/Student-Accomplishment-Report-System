@@ -26,13 +26,31 @@ const mainNavItems: NavItem[] = [
         roles: [ROLES.ADMIN, ROLES.EMPLOYEE, ROLES.STUDENT],
     },
     {
-        title: 'Accomplishments',
+        title: 'My Tasks',
         href: accomplishment(),
         icon: ClipboardListIcon,
-        roles: [ROLES.ADMIN, ROLES.EMPLOYEE, ROLES.STUDENT],
+        roles: [ROLES.EMPLOYEE, ROLES.STUDENT],
     },
     {
-        title: 'Users',
+        title: 'My Accomplishments',
+        href: accomplishment(),
+        icon: ClipboardListIcon,
+        roles: [ROLES.EMPLOYEE, ROLES.STUDENT],
+    },
+    {
+        title: 'Interns',
+        href: "#",
+        icon: ClipboardListIcon,
+        roles: [ROLES.EMPLOYEE],
+    },
+    {
+        title: 'All Accomplishments',
+        href: accomplishment(),
+        icon: ClipboardListIcon,
+        roles: [ROLES.ADMIN],
+    },
+    {
+        title: 'All Users',
         href: users(),
         icon: User2Icon,
         roles: [ROLES.ADMIN]

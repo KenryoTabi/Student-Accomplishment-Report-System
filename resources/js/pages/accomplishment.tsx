@@ -26,11 +26,6 @@ import { AccomplishmentForm } from '@/layouts/form/add-accomplishment-form';
 function getData(): Task[] {
 
   return [
-    {
-      id: "728ed52f",
-      user: "John Doe",
-      action: {}
-    },
   ]
 }
 

@@ -12,6 +12,9 @@ import DialogLayout from "../dialog-layout";
 import Heading from "@/components/heading";
 import { DatePickerWithRange } from "@/components/ui/date-picker";
 import { DateRange } from "react-day-picker";
+import AccomplishmentController from "@/actions/App/Http/Controllers/AccomplishmentController";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export function AccomplishmentForm() { 
 
@@ -53,7 +56,9 @@ export function AccomplishmentForm() {
                 {
                     ({ close, resetRef }) => (
                         <Form
+                            {...AccomplishmentController.store.form()}
                             onSuccess={() => close()}
+
                         >
                             {({ resetAndClearErrors, processing, errors }) => {
                                 resetRef.current = resetAndClearErrors;
@@ -73,11 +78,13 @@ export function AccomplishmentForm() {
 
                                                 return (
                                                     <div key={index} className="flex flex-row items-center gap-2">
-                                                        <label className="text-sm font-medium">
+                                                        <Label 
+                                                            htmlFor={`accomplishments[${formatted}]`}
+                                                            className="text-sm font-medium">
                                                             {formatted}
-                                                        </label>
+                                                        </Label>
 
-                                                        <textarea
+                                                        <Textarea
                                                             name={`accomplishments[${formatted}]`}
                                                             className="w-full border rounded px-3 py-2 whitespace-normal break-words resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                                                             placeholder="Enter accomplishment"

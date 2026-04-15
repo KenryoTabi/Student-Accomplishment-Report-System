@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
@@ -39,13 +40,18 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function intern(): HasOne
+    public function intern(): HasMany
     {
-        return $this->hasOne(Intern::class);
+        return $this->hasMany(Intern::class);
     }
 
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class, 'section_id');
+    }
+
+    public function accomplishment(): HasMany 
+    {
+        return $this->hasMany(Accomplishment::class);
     }
 }

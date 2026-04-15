@@ -46,7 +46,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $internRole = Role::find($request->role);
-        // dd($request);
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -85,7 +84,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'User created successfully');
+        return redirect()->route('users')->with('success', 'User created successfully');
     }
 
     /**

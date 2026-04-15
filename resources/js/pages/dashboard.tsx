@@ -4,63 +4,13 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
-import { columns, Payment } from '@/components/columns';
+import { taskColumns, Task } from '@/components/columns';
 
 export default function Dashboard() {
-    function getData(): Payment[] {
+    function getData(): Task[] {
 
         return [
-            {
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },{
-            id: "728ed52f",
-            amount: 100,
-            status: "pending",
-            email: "m@example.com",
-            },
+            
         ]
     }
     return (
@@ -81,7 +31,7 @@ export default function Dashboard() {
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">                    
                     
                     
-                    <DataTable columns={columns} data={getData()}/>
+                    <DataTable columns={taskColumns} data={getData()}/>
 
                 </div>
             </div>

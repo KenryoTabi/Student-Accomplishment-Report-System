@@ -37,9 +37,7 @@ export default function Users() {
 
         users.map((user) => {
             console.log(user);
-        });
-        console.log(users);
-        
+        });        
         return users;
     }
 
