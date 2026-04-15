@@ -13,7 +13,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { accomplishment, dashboard, users } from '@/routes';
+import { userTasks, accomplishmentReport, dashboard, users } from '@/routes';
 import type { NavItem } from '@/types';
 import { useRole } from '@/hooks/use-role';
 import { ROLES } from '@/constants/roles';
@@ -27,13 +27,13 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'My Tasks',
-        href: accomplishment(),
+        href: userTasks(),
         icon: ClipboardListIcon,
         roles: [ROLES.EMPLOYEE, ROLES.STUDENT],
     },
     {
         title: 'My Accomplishments',
-        href: accomplishment(),
+        href: accomplishmentReport(),
         icon: ClipboardListIcon,
         roles: [ROLES.EMPLOYEE, ROLES.STUDENT],
     },
@@ -44,8 +44,14 @@ const mainNavItems: NavItem[] = [
         roles: [ROLES.EMPLOYEE],
     },
     {
+        title: 'All Tasks',
+        href: userTasks(),
+        icon: ClipboardListIcon,
+        roles: [ROLES.ADMIN],
+    },
+    {
         title: 'All Accomplishments',
-        href: accomplishment(),
+        href: accomplishmentReport(),
         icon: ClipboardListIcon,
         roles: [ROLES.ADMIN],
     },

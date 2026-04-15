@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\AccomplishmentController;
+use App\Http\Controllers\AccomplishmentReportController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-use App\Http\Controllers\UserController;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
@@ -12,7 +13,8 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class)->name('index', 'users');
-    Route::resource('accomplishment', AccomplishmentController::class)->name('index', 'accomplishment');
+    Route::resource('user-tasks', TaskController::class)->name('index', 'user-tasks');
+    Route::resource('accomplishment-report', AccomplishmentReportController::class)->name('index', 'accomplishment-report');
 
     Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
     // Route::inertia('accomplishment','accomplishment')->name('accomplishment');

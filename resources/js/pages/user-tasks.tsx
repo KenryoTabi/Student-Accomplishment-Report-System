@@ -1,7 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
-import { accomplishment } from '@/routes';
+import { userTasks } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
 import { taskColumns, Task  } from '@/components/columns';
@@ -21,15 +21,18 @@ import { Input } from '@headlessui/react';
 import { Select, SelectContent, SelectTrigger } from '@/components/ui/select';
 import { CirclePlusIcon, Plus, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { AccomplishmentForm } from '@/layouts/form/add-accomplishment-form';
+import { TaskForm } from '@/layouts/form/add-task-form';
 
 function getData(): Task[] {
+    
+    const $controller = new TaskController();
+    return [
 
-  return [
-  ]
+    ]
+
 }
 
-export default function Accomplishment() {
+export default function UserTasks() {
     const { roleId } = useRole();
 
     const resetFormRef = useRef<(() => void) | null>(null);
@@ -46,17 +49,17 @@ export default function Accomplishment() {
     const [dialogOpen, setDialogOpen] = useState(false);
     return (
         <>
-            <Head title="Accomplishment" />
+            <Head title="Task" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Label className='text-xl font-semibold align-middle'>Total Users</Label>
+                        <Label className='text-xl font-semibold align-middle'></Label>
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <Label className='text-xl font-semibold align-middle'>Total Accomplishments</Label>
+                    <Label className='text-xl font-semibold align-middle'>Total Tasks</Label>
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Label className='text-xl font-semibold align-middle'>Reports This Period</Label>
+                        <Label className='text-xl font-semibold align-middle'>Tasks This Quarter</Label>
                     </div>
                 </div>
                 <div className='flex gap-4 w-full'>
@@ -70,26 +73,23 @@ export default function Accomplishment() {
                         ><Search className='size-5'/></Link>
                     </div>
                     
-                    <AccomplishmentForm/>
+                    <TaskForm/>
                     
                 </div>
 
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">                    
-                    
-                    <DataTable columns={taskColumns} data={getData()}>
+                <DataTable columns={taskColumns} data={getData()}>
 
-                    </DataTable>
-                </div>
+                </DataTable>
             </div>
         </>
     );
 }
 
-Accomplishment.layout = {
+UserTasks.layout = {
     breadcrumbs: [
         {
-            title: 'Accomplishment',
-            href: accomplishment(),
+            title: 'User Tasks',
+            href: userTasks(),
         },
     ],
 };

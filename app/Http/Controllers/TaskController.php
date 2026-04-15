@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Accomplishment;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Models\Intern;
 use App\Models\Role;
@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 use Inertia\Inertia;
 
-class AccomplishmentController extends Controller
+class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,24 +24,24 @@ class AccomplishmentController extends Controller
 
         switch ($user->role_id) {
             case 1: 
-                $accomplishments = Accomplishment::with(['user'])->get();
+                $accomplishments = Task::with(['user'])->get();
                 break;
 
             case 2:
-                $accomplishments = Accomplishment::whereHas('user', function ($query) use ($user) {
+                $accomplishments = Task::whereHas('user', function ($query) use ($user) {
                     $query->where('section_id', $user->section_id);
                 })->with(['user'])->get();
                 break;
 
             case 3:
-                $accomplishments = Accomplishment::where('user_id', $user->id)->with(['user'])->get();
+                $accomplishments = Task::where('user_id', $user->id)->with(['user'])->get();
                 break;
 
             default:
                 $accomplishments = collect(); // Empty collection for unknown roles
         }
-        return Inertia::render('accomplishment', [
-            'accomplishments' => $accomplishments->map(function (Accomplishment $accomplishment) {
+        return Inertia::render('user-tasks', [
+            'accomplishments' => $accomplishments->map(function (Task $accomplishment) {
                 return [
                     'id' => $accomplishment->id,
                     'description' => $accomplishment->description,
@@ -72,21 +72,21 @@ class AccomplishmentController extends Controller
             $date = Carbon::createFromFormat('m/d/Y', $date);
             $formatted = $date->format('Y-m-d');
             // dd($formatted);
-            Accomplishment::create([
+            Task::create([
                 'user_id' => Auth::id(),
                 'task_date' => $formatted,
                 'description' => $description,
             ]);
         }
 
-        return redirect()->back()->with('success', 'Accomplishment created successfully.');
+        return redirect()->back()->with('success', 'Task created successfully.');
     
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Accomplishment $accomplishment)
+    public function show(Task $accomplishment)
     {
         //
     }
@@ -94,7 +94,7 @@ class AccomplishmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Accomplishment $accomplishment)
+    public function edit(Task $accomplishment)
     {
         //
     }
@@ -102,7 +102,7 @@ class AccomplishmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Accomplishment $accomplishment)
+    public function update(Request $request, Task $accomplishment)
     {
         //
     }
@@ -110,7 +110,7 @@ class AccomplishmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Accomplishment $accomplishment)
+    public function destroy(Task $accomplishment)
     {
         //
     }

@@ -50,8 +50,8 @@ class User extends Authenticatable
         return $this->belongsTo(Section::class, 'section_id');
     }
 
-    public function accomplishment(): HasMany 
+    public function task(): HasMany 
     {
-        return $this->hasMany(Accomplishment::class);
+        return $this->hasMany(Task::class);
     }
 }

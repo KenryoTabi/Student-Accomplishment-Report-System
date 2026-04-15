@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccomplishmentReport;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AccomplishmentReportController extends Controller
 {
@@ -13,6 +14,16 @@ class AccomplishmentReportController extends Controller
     public function index()
     {
         //
+        return Inertia::render('user-accomplishments', [
+            'reports' => AccomplishmentReport::with(['user'])->get()->map(function (AccomplishmentReport $report) {
+                return [
+                    'id' => $report->id,
+                    'description' => $report->description,
+                    'status' => $report->status,
+                    // 'user' => $report->user?->name,
+                ];
+            }),
+        ]);
     }
 
     /**

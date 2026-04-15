@@ -4,7 +4,7 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
-import { taskColumns, Task } from '@/components/columns';
+import { taskColumns, type Task } from '@/components/columns';
 
 export default function Dashboard() {
     function getData(): Task[] {

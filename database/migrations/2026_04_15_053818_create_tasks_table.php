@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accomplishments', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('user_id')
@@ -19,7 +19,7 @@ return new class extends Migration
                 ->on('users')
                 ->cascadeOnDelete();
 
-            $table->foreignId('accomplishment_id')
+            $table->foreignId('report_id')
                 ->nullable()
                 ->references('id')
                 ->on('accomplishment_reports')
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('accomplishments');
+        Schema::dropIfExists('tasks');
     }
 };

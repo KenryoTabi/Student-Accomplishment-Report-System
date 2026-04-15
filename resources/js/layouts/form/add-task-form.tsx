@@ -12,11 +12,11 @@ import DialogLayout from "../dialog-layout";
 import Heading from "@/components/heading";
 import { DatePickerWithRange } from "@/components/ui/date-picker";
 import { DateRange } from "react-day-picker";
-import AccomplishmentController from "@/actions/App/Http/Controllers/AccomplishmentController";
+import TaskController from "@/actions/App/Http/Controllers/TaskController";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export function AccomplishmentForm() { 
+export function TaskForm() { 
 
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
     
@@ -47,16 +47,16 @@ export function AccomplishmentForm() {
                 trigger={
                     <Button className=''>
                         <CirclePlusIcon className='size-5' />
-                        Accomplishment
+                        Task
                     </Button>
                 }
-                title="Create Accomplishment"
-                description="Add a new accomplishment to the system. Fill in the details below."
+                title="Create Task"
+                description="Add a new task to the system. Fill in the details below."
             >
                 {
                     ({ close, resetRef }) => (
                         <Form
-                            {...AccomplishmentController.store.form()}
+                            {...TaskController.store.form()}
                             onSuccess={() => close()}
 
                         >
@@ -87,7 +87,7 @@ export function AccomplishmentForm() {
                                                         <Textarea
                                                             name={`accomplishments[${formatted}]`}
                                                             className="w-full border rounded px-3 py-2 whitespace-normal break-words resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                                                            placeholder="Enter accomplishment"
+                                                            placeholder="Enter Task/s"
                                                         />
                                                     </div>
                                                 );
