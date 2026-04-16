@@ -23,20 +23,24 @@ class TaskController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $taskQuery = Task::query()
+            ->with(['user'])
+            ->orderByDesc('task_date')
+            ->orderByDesc('created_at');
 
         switch ($user->role_id) {
             case AppConstants::USER_ROLE_ADMIN: 
-                $accomplishments = Task::with(['user'])->get();
+                $accomplishments = $taskQuery->get();
                 break;
 
             case AppConstants::USER_ROLE_SUPERVISOR:
-                $accomplishments = Task::whereHas('user', function ($query) use ($user) {
+                $accomplishments = $taskQuery->whereHas('user', function ($query) use ($user) {
                     $query->where('id', $user->id);
-                })->with(['user'])->get();
+                })->get();
                 break;
 
             case AppConstants::USER_ROLE_STUDENT:
-                $accomplishments = Task::where('user_id', $user->id)->with(['user'])->get();
+                $accomplishments = $taskQuery->where('user_id', $user->id)->get();
                 break;
 
             default:
@@ -46,9 +50,12 @@ class TaskController extends Controller
             'tasks' => $accomplishments->map(function (Task $accomplishment) {
                 return [
                     'id' => $accomplishment->id,
+                    'user' => $accomplishment->user?->name,
+                    'task_date' => $accomplishment->task_date
+                        ? Carbon::parse($accomplishment->task_date)->format('m/d/Y')
+                        : null,
                     'description' => $accomplishment->description,
                     'status' => $accomplishment->status,
-                    // 'user' => $accomplishment->user?->name,
                 ];
             }),
         ]);
@@ -91,7 +98,7 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Task $accomplishment)
+    public function show(Task $user_task)
     {
         //
     }
@@ -99,7 +106,7 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Task $accomplishment)
+    public function edit(Task $user_task)
     {
         //
     }
@@ -107,16 +114,43 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $accomplishment)
+    public function update(Request $request, Task $user_task)
     {
-        //
+        $this->authorizeTaskAccess($user_task);
+
+        $validated = $request->validate([
+            'task_date' => 'required|date_format:m/d/Y',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $user_task->update([
+            'task_date' => Carbon::createFromFormat('m/d/Y', $validated['task_date'])
+                ->format('Y-m-d'),
+            'description' => $validated['description'],
+        ]);
+
+        return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $accomplishment)
+    public function destroy(Task $user_task)
     {
-        //
+        $this->authorizeTaskAccess($user_task);
+
+        $user_task->delete();
+
+        return redirect()->back()->with('success', 'Task deleted successfully.');
+    }
+
+    protected function authorizeTaskAccess(Task $user_task): void
+    {
+        $user = Auth::user();
+
+        $canAccessTask = $user->role_id === AppConstants::USER_ROLE_ADMIN
+            || $user->id === $user_task->user_id;
+
+        abort_unless($canAccessTask, 403);
     }
 }
