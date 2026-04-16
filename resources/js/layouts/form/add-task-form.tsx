@@ -1,116 +1,148 @@
-import { Form } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
-import InputError from "@/components/input-error";
+import { Form } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { CirclePlusIcon, MinusCircleIcon } from 'lucide-react';
+import { useState } from 'react';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import DatePicker from '@/components/ui/date-picker';
+import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import DialogLayout from '../dialog-layout';
 
-import { CirclePlusIcon } from "lucide-react";
-import { 
-    DialogFooter,
-    DialogClose
-} from "@/components/ui/dialog"
-import { useRef, useState } from "react";
-import DialogLayout from "../dialog-layout";
-import Heading from "@/components/heading";
-import { DatePickerWithRange } from "@/components/ui/date-picker";
-import { DateRange } from "react-day-picker";
-import TaskController from "@/actions/App/Http/Controllers/TaskController";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+export function TaskForm() {
+    const [date, setDate] = useState<Date | undefined>(() => new Date());
+    const [taskRows, setTaskRows] = useState([0]);
+    const [nextRowId, setNextRowId] = useState(1);
+    const formattedDate = date ? format(date, 'MM/dd/yyyy') : '';
 
-export function TaskForm() { 
-
-    const [dateRange, setDateRange] = useState<DateRange | undefined>();
-    
-    function getDatesBetween(from: Date, to: Date) {
-        
-        const dates = [];
-        const current = new Date(from);
-
-        while (current <= to) {
-            dates.push(new Date(current));
-            current.setDate(current.getDate() + 1);
-        }        
-
-        return dates;
+    function addTaskRow() {
+        setTaskRows((currentRows) => [...currentRows, nextRowId]);
+        setNextRowId((currentId) => currentId + 1);
     }
 
-    const dates =
-        dateRange?.from && dateRange?.to
-            ? getDatesBetween(dateRange.from, dateRange.to)
-            : [];
-
-    console.log(dates);
-    
+    function removeTaskRow(rowId: number) {
+        setTaskRows((currentRows) =>
+            currentRows.filter((currentRowId) => currentRowId !== rowId),
+        );
+    }
 
     return (
-        <>
-            <DialogLayout
-                trigger={
-                    <Button className=''>
-                        <CirclePlusIcon className='size-5' />
-                        Task
-                    </Button>
-                }
-                title="Create Task"
-                description="Add a new task to the system. Fill in the details below."
-            >
-                {
-                    ({ close, resetRef }) => (
-                        <Form
-                            {...TaskController.store.form()}
-                            onSuccess={() => close()}
+        <DialogLayout
+            trigger={
+                <Button>
+                    <CirclePlusIcon className="size-5" />
+                    Task
+                </Button>
+            }
+            title="Create Task"
+            description="Add a new task to the system. Fill in the details below."
+        >
+            {({ close, resetRef }) => (
+                <Form
+                    {...TaskController.store.form()}
+                    onSuccess={() => close()}
+                >
+                    {({ resetAndClearErrors, processing, errors }) => {
+                        resetRef.current = () => {
+                            resetAndClearErrors();
+                            setDate(new Date());
+                            setTaskRows([0]);
+                            setNextRowId(1);
+                        };
 
-                        >
-                            {({ resetAndClearErrors, processing, errors }) => {
-                                resetRef.current = resetAndClearErrors;
-                                return (
-                                    <>
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex flex-col gap-4">
-                                                <DatePickerWithRange 
-                                                    title=""
-                                                    date={dateRange}
-                                                    onChange={setDateRange}
-                                                />
-                                                <InputError message={errors.date} />
-                                            </div>
-                                            {dates.map((date, index) => {
-                                                const formatted = date.toLocaleDateString();
+                        return (
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col items-center gap-2 text-center">
+                                    <DatePicker
+                                        date={date}
+                                        onChange={setDate}
+                                    />
+                                    {formattedDate && (
+                                        <input
+                                            type="hidden"
+                                            name="task_date"
+                                            value={formattedDate}
+                                        />
+                                    )}
+                                    <InputError message={errors.task_date} />
+                                </div>
 
-                                                return (
-                                                    <div key={index} className="flex flex-row items-center gap-2">
-                                                        <Label 
-                                                            htmlFor={`accomplishments[${formatted}]`}
-                                                            className="text-sm font-medium">
-                                                            {formatted}
-                                                        </Label>
+                                {formattedDate && (
+                                    <div className="flex flex-col gap-3">
+                                        {taskRows.map((rowId, index) => (
+                                            <div
+                                                key={rowId}
+                                                className="flex flex-row items-center gap-2"
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <Label
+                                                        htmlFor={`accomplishment-${rowId}`}
+                                                        className="text-sm font-medium"
+                                                    >
+                                                        Task {index + 1}
+                                                    </Label>
+                                                </div>
 
-                                                        <Textarea
-                                                            name={`accomplishments[${formatted}]`}
-                                                            className="w-full border rounded px-3 py-2 whitespace-normal break-words resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                                                            placeholder="Enter Task/s"
-                                                        />
-                                                    </div>
-                                                );
-                                            })}
-                                            <DialogFooter className="gap-2">
-                                                <DialogClose asChild>
-                                                    <Button type="button" variant="outline">
-                                                        Cancel
+                                                <div className="flex flex-1 flex-col gap-1">
+                                                    <Textarea
+                                                        id={`accomplishment-${rowId}`}
+                                                        name="accomplishments[]"
+                                                        placeholder="Enter task"
+                                                        className="w-full resize-none rounded border px-3 py-2 break-words whitespace-normal focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+                                                    />
+
+                                                    <InputError
+                                                        message={
+                                                            errors[
+                                                                `accomplishments.${index}`
+                                                            ] ??
+                                                            errors.accomplishments
+                                                        }
+                                                    />
+                                                </div>
+
+                                                {index > 0 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            removeTaskRow(rowId)
+                                                        }
+                                                    >
+                                                        <MinusCircleIcon className="size-5" />
                                                     </Button>
-                                                </DialogClose>
-                                                <Button type="submit" disabled={processing}>
-                                                    Create Accomplishment
-                                                </Button>
-                                            </DialogFooter>
-                                        </div>
-                                    </>
-                                )
-                            }}
-                        </Form>
-                    )
-                }
-            </DialogLayout>
-            
-        </>
-    )
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={addTaskRow}
+                                        >
+                                            Add another task
+                                        </Button>
+                                    </div>
+                                )}
+
+                                <DialogFooter className="gap-2">
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="outline">
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
+                                    <Button type="submit" disabled={processing}>
+                                        Submit
+                                    </Button>
+                                </DialogFooter>
+                            </div>
+                        );
+                    }}
+                </Form>
+            )}
+        </DialogLayout>
+    );
 }

@@ -67,16 +67,19 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->accomplishments);
-        $accomplishments = $request->input('accomplishments', []);
-        
-        foreach ($accomplishments as $date => $description) {
-            $date = Carbon::createFromFormat('m/d/Y', $date);
-            $formatted = $date->format('Y-m-d');
-            // dd($formatted);
+        $validated = $request->validate([
+            'task_date' => 'required|date_format:m/d/Y',
+            'accomplishments' => 'required|array|min:1',
+            'accomplishments.*' => 'required|string|max:255',
+        ]);
+
+        $formattedDate = Carbon::createFromFormat('m/d/Y', $validated['task_date'])
+            ->format('Y-m-d');
+
+        foreach ($validated['accomplishments'] as $description) {
             Task::create([
                 'user_id' => Auth::id(),
-                'task_date' => $formatted,
+                'task_date' => $formattedDate,
                 'description' => $description,
             ]);
         }

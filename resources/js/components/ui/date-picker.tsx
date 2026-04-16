@@ -1,6 +1,7 @@
-import * as React from "react"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
 import { CalendarIcon, ChevronDownIcon } from "lucide-react"
+import * as React from "react"
+import type { DateRange } from "react-day-picker"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Field, FieldLabel } from "@/components/ui/field"
@@ -9,20 +10,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { DateRange } from "react-day-picker"
-import { type DatePickerProps } from "@/types"
+import type { DatePickerProps, SingleDatePickerProps } from "@/types"
 
-export default function DatePicker() {
-  const [date, setDate] = React.useState<Date>()
+export default function DatePicker({
+  date,
+  onChange,
+  placeholder = "Pick a date",
+}: SingleDatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           data-empty={!date}
           className="w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
         >
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
+          {date ? format(date, "PPP") : <span>{placeholder}</span>}
           <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
@@ -30,8 +34,8 @@ export default function DatePicker() {
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
-          defaultMonth={date}
+          onSelect={onChange}
+          defaultMonth={date ?? new Date()}
         />
       </PopoverContent>
     </Popover>
@@ -49,6 +53,7 @@ export function DatePickerWithRange({
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            type="button"
             variant="outline"
             id="date-picker-range"
             className="justify-start px-2.5 font-normal"

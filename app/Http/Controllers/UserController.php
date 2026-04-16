@@ -45,8 +45,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $internRole = Role::find($request->role);
-
+        $internRole = Role::find($request->role_id);
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -84,7 +83,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('users')->with('success', 'User created successfully');
+        return redirect()->back()->with('success', 'User created successfully');
     }
 
     /**

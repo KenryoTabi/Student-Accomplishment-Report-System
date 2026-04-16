@@ -6,14 +6,6 @@ import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
 import { taskColumns, Task  } from '@/components/columns';
 import { useRole } from '@/hooks/use-role';
-import { 
-    Dialog, 
-    DialogClose, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogTitle, 
-    DialogTrigger } from '@/components/ui/dialog';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import PasswordInput from '@/components/password-input';
@@ -22,6 +14,7 @@ import { Select, SelectContent, SelectTrigger } from '@/components/ui/select';
 import { CirclePlusIcon, Plus, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { TaskForm } from '@/layouts/form/add-task-form';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 
 type PageProps = {
@@ -30,8 +23,6 @@ type PageProps = {
 export default function UserTasks() {
     function getData(): Task[] {
         const { tasks } = usePage<PageProps>().props;
-
-        console.log(tasks);
         return tasks;
     }
 
@@ -79,9 +70,32 @@ export default function UserTasks() {
                     
                 </div>
 
-                <DataTable columns={taskColumns} data={getData()}>
-
-                </DataTable>
+                <DataTable columns={taskColumns} data={getData()}/>
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                        <PaginationPrevious href="#" />
+                        </PaginationItem>
+                        <PaginationItem>
+                        <PaginationLink href="#">1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                        <PaginationLink href="#" isActive>
+                            2
+                        </PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                        <PaginationLink href="#">3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                        <PaginationEllipsis />
+                        </PaginationItem>
+                        <PaginationItem>
+                        <PaginationNext href="#" />
+                        </PaginationItem>
+                    </PaginationContent>
+                    </Pagination>
+                 
             </div>
         </>
     );

@@ -31,3 +31,9 @@ export type DatePickerProps = {
     date: DateRange | undefined;
     onChange: (date: DateRange | undefined) => void;
 };
+
+export type SingleDatePickerProps = {
+    date: Date | undefined;
+    onChange: (date: Date | undefined) => void;
+    placeholder?: string;
+};
