@@ -87,8 +87,8 @@ export function TaskForm() {
 
                                                 <div className="flex flex-1 flex-col gap-1">
                                                     <Textarea
-                                                        id={`accomplishment-${rowId}`}
-                                                        name="accomplishments[]"
+                                                        id={`task-${rowId}`}
+                                                        name="tasks[]"
                                                         placeholder="Enter task"
                                                         className="w-full resize-none rounded border px-3 py-2 break-words whitespace-normal focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
                                                     />
@@ -96,9 +96,9 @@ export function TaskForm() {
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `accomplishments.${index}`
+                                                                `tasks.${index}`
                                                             ] ??
-                                                            errors.accomplishments
+                                                            errors.tasks
                                                         }
                                                     />
                                                 </div>

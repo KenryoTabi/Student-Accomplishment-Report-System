@@ -1,84 +1,70 @@
-import { Form, Head, Link } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 import { accomplishmentReport } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
-import { taskColumns, Task  } from '@/components/columns';
+import {
+    AccomplishmentReport,
+    accomplishmentReportColumns,
+} from '@/components/columns';
 import { useRole } from '@/hooks/use-role';
-import { 
-    Dialog, 
-    DialogClose, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogTitle, 
-    DialogTrigger } from '@/components/ui/dialog';
-import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import PasswordInput from '@/components/password-input';
 import { Input } from '@headlessui/react';
-import { Select, SelectContent, SelectTrigger } from '@/components/ui/select';
-import { CirclePlusIcon, Plus, Search } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { Search } from 'lucide-react';
 import { GenerateAccomplishmentForm } from '@/layouts/form/generate-accomplishment-form';
 
-function getData(): Task[] {
-
-  return [
-  ]
-}
+type PageProps = {
+    reports: AccomplishmentReport[];
+};
 
 export default function UserAccomplishment() {
-    const { roleId } = useRole();
+    const { reports } = usePage<PageProps>().props;
+    const { isAdmin } = useRole();
 
-    const resetFormRef = useRef<(() => void) | null>(null);
-    
-
-    function handleDialogOpenChange(open: boolean): void {
-        if (!open) {
-            resetFormRef.current?.();
-        }
-
-        setDialogOpen(open);
-    }
-
-    const [dialogOpen, setDialogOpen] = useState(false);
     return (
         <>
-            <Head title="Task" />
+            <Head title="Accomplishments" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Label className='text-xl font-semibold align-middle'>Total Users</Label>
+                        <Label className="align-middle text-xl font-semibold">
+                            Total Users
+                        </Label>
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <Label className='text-xl font-semibold align-middle'>Total Accomplishments</Label>
+                        <Label className="align-middle text-xl font-semibold">
+                            Total Accomplishments
+                        </Label>
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Label className='text-xl font-semibold align-middle'>Reports This Period</Label>
+                        <Label className="align-middle text-xl font-semibold">
+                            Reports This Period
+                        </Label>
                     </div>
                 </div>
-                <div className='flex gap-4 w-full'>
-                    <div className='flex-1'>
-                        <Input placeholder='Search Users' className='w-full rounded-lg border border-sidebar-border/70 dark:border-sidebar-border bg-transparent py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary' />
+                <div className="flex w-full gap-4">
+                    <div className="flex-1">
+                        <Input
+                            placeholder="Search Users"
+                            className="w-full rounded-lg border border-sidebar-border/70 bg-transparent px-4 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none dark:border-sidebar-border"
+                        />
                     </div>
-                    <div className='ml-auto'>
-                        <Link 
-                            className='flex flex-row gap-2 text-black bg-white py-2 px-4 cursor-pointer rounded-lg border text-sm font-sm align-center' 
-                            as='button'
-                        ><Search className='size-5'/></Link>
+                    <div className="ml-auto">
+                        <Link
+                            className="font-sm align-center flex cursor-pointer flex-row gap-2 rounded-lg border bg-white px-4 py-2 text-sm text-black"
+                            as="button"
+                        >
+                            <Search className="size-5" />
+                        </Link>
                     </div>
-                    
-                    <GenerateAccomplishmentForm/>
-                    
+
+                    {!isAdmin && <GenerateAccomplishmentForm />}
                 </div>
 
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">                    
-                    
-                    <DataTable columns={taskColumns} data={getData()}>
-
-                    </DataTable>
+                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
+                    <DataTable
+                        columns={accomplishmentReportColumns}
+                        data={reports}
+                    />
                 </div>
             </div>
         </>
@@ -93,5 +79,3 @@ UserAccomplishment.layout = {
         },
     ],
 };
-
-

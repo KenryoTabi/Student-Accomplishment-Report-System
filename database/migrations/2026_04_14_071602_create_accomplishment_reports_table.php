@@ -20,8 +20,9 @@ return new class extends Migration
                 ->references('id')
                 ->on('users')
                 ->cascadeOnDelete();
-
-            $table->date('period'); 
+            
+            $table->date('start_date');
+            $table->date('end_date');
 
             $table->enum('status', [
                 'draft',
@@ -33,7 +34,7 @@ return new class extends Migration
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('approved_at')->nullable();
 
-            $table->foreignId('approved_by')
+            $table->foreignId('supervised_by')
                 ->nullable()
                 ->references('id')
                 ->on('users')
@@ -45,8 +46,7 @@ return new class extends Migration
 
             $table->softDeletes();
 
-            // Prevent duplicate monthly reports per user
-            $table->unique(['user_id', 'period']);
+            $table->unique(['user_id', 'start_date', 'end_date']);
         });
     }
 

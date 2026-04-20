@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import ViewAccomplishmentReportDialog from '@/layouts/form/view-accomplishment-report-dialog';
 import ViewTaskDialog from '@/layouts/form/view-task-dialog';
 import { Button } from './ui/button';
 
@@ -7,9 +8,24 @@ import { Button } from './ui/button';
 
 export type Task = {
     id: number;
+    user_id?: number;
+    report_id?: number | null;
     user?: string | null;
     description: string;
     task_date?: string | null;
+    status?: string | null;
+};
+
+export type AccomplishmentReport = {
+    id: number;
+    report_code: string;
+    user_id: number;
+    author?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
+    supervisor_id?: number | null;
+    supervisor_name?: string | null;
+    period?: string | null;
     status?: string | null;
 };
 
@@ -24,6 +40,10 @@ export const taskColumns: ColumnDef<Task>[] = [
     {
         accessorKey: 'id',
         header: 'Task Id',
+    },
+    {
+        accessorKey: 'task_date',
+        header: 'Date',
     },
     {
         accessorKey: 'user',
@@ -71,6 +91,34 @@ export const userColumns: ColumnDef<User>[] = [
                     <Button variant="outline">Edit</Button>
                 </>
             );
+        },
+    },
+];
+
+export const accomplishmentReportColumns: ColumnDef<AccomplishmentReport>[] = [
+    {
+        accessorKey: 'report_code',
+        header: 'Report Code',
+    },
+    {
+        accessorKey: 'author',
+        header: 'Author',
+    },
+    {
+        accessorKey: 'period',
+        header: 'Period',
+    },
+    {
+        accessorKey: 'status',
+        header: 'Status',
+    },
+    {
+        id: 'action',
+        header: 'Action',
+        cell: ({ row }) => {
+            const report = row.original;
+
+            return <ViewAccomplishmentReportDialog report={report} />;
         },
     },
 ];

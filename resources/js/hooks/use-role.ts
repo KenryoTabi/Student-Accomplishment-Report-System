@@ -7,7 +7,7 @@ export function useAuth() {
 export function useRole() {
     const { user } = useAuth();
 
-    const roleId = user?.role_id ?? 0;
+    const roleId = Number(user?.role_id ?? 0);
 
     return {
         roleId,
