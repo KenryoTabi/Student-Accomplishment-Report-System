@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 import { accomplishmentReport } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
@@ -11,14 +11,29 @@ import { useRole } from '@/hooks/use-role';
 import { Input } from '@headlessui/react';
 import { Search } from 'lucide-react';
 import { GenerateAccomplishmentForm } from '@/layouts/form/generate-accomplishment-form';
+import { PaginatedResponse } from '@/types';
+import SmartPagination from '@/components/app-pagination';
 
 type PageProps = {
-    reports: AccomplishmentReport[];
+    reports: PaginatedResponse<AccomplishmentReport>;
 };
 
 export default function UserAccomplishment() {
     const { reports } = usePage<PageProps>().props;
     const { isAdmin } = useRole();
+
+    function getData() {
+        return reports.data;
+    }
+
+    const changePage = (page: number) => {
+        router.get('/accomplishment-report', {
+                page
+            }, {
+                preserveState: true,
+                replace: false
+            });
+        };
 
     return (
         <>
@@ -60,12 +75,13 @@ export default function UserAccomplishment() {
                     {!isAdmin && <GenerateAccomplishmentForm />}
                 </div>
 
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <DataTable
-                        columns={accomplishmentReportColumns}
-                        data={reports}
-                    />
-                </div>
+                <DataTable
+                    columns={accomplishmentReportColumns}
+                    data={getData()}
+                />
+
+                <SmartPagination currentPage={reports.current_page} lastPage={reports.last_page} onPageChange={changePage} />
+
             </div>
         </>
     );

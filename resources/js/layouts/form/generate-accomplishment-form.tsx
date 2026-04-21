@@ -12,7 +12,7 @@ import { DateRange } from 'react-day-picker';
 import AccomplishmentReportController from '@/actions/App/Http/Controllers/AccomplishmentReportController';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { Task } from '@/components/columns';
+import { Task } from '@/types';
 
 type PageProps = {
     tasks: Task[];

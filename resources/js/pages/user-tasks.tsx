@@ -27,9 +27,7 @@ export default function UserTasks() {
 
     function getData(): Task[] {
         return tasks.data;
-    }
-
-    
+    }    
 
     const changePage = (page: number) => {
     router.get('/user-tasks', {

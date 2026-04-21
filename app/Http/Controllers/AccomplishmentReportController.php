@@ -38,16 +38,16 @@ class AccomplishmentReportController extends Controller
 
         switch ($user->role_id) {
             case AppConstants::USER_ROLE_ADMIN:
-                $reports = $reportQuery->get();
-                $tasks = $taskQuery->get();
+                $reportQuery->get();
+                $taskQuery->get();
                 break;
 
             case AppConstants::USER_ROLE_SUPERVISOR:
             case AppConstants::USER_ROLE_STUDENT:
-                $reports = $reportQuery
+                $reportQuery
                     ->where('user_id', $user->id)
                     ->get();
-                $tasks = $taskQuery
+                $taskQuery
                     ->where('user_id', $user->id)
                     ->get();
                 break;
@@ -57,8 +57,11 @@ class AccomplishmentReportController extends Controller
                 $tasks = collect();
         }
 
+        $tasks = $taskQuery->paginate(10)->withQueryString();
+        $reports = $reportQuery->paginate(10)->withQueryString();
+
         return Inertia::render('user-accomplishments', [
-            'reports' => $reports->map(function (AccomplishmentReport $report) {
+            'reports' => $reports->through(function (AccomplishmentReport $report) {
                 $startDate = $report->start_date
                     ? Carbon::parse($report->start_date)->format('m/d/Y')
                     : null;
@@ -80,8 +83,8 @@ class AccomplishmentReportController extends Controller
                     'supervisor_id' => $report->supervised_by,
                     'supervisor_name' => $report->supervisor?->name,
                 ];
-            })->values(),
-            'tasks' => $tasks->map(function (Task $task) {
+            }),
+            'tasks' => $tasks->through(function (Task $task) {
                 return [
                     'id' => $task->id,
                     'user_id' => $task->user_id,
