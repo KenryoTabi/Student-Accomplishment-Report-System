@@ -2,19 +2,12 @@ import type { ColumnDef } from '@tanstack/react-table';
 import ViewAccomplishmentReportDialog from '@/layouts/form/view-accomplishment-report-dialog';
 import ViewTaskDialog from '@/layouts/form/view-task-dialog';
 import { Button } from './ui/button';
+import {Task} from "@/types";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export type Task = {
-    id: number;
-    user_id?: number;
-    report_id?: number | null;
-    user?: string | null;
-    description: string;
-    task_date?: string | null;
-    status?: string | null;
-};
+
 
 export type AccomplishmentReport = {
     id: number;

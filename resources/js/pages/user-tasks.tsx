@@ -1,10 +1,10 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
 import { userTasks } from '@/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { Label } from '@/components/ui/label';
-import { taskColumns, Task  } from '@/components/columns';
+import { taskColumns } from '@/components/columns';
 import { useRole } from '@/hooks/use-role';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -14,32 +14,32 @@ import { Select, SelectContent, SelectTrigger } from '@/components/ui/select';
 import { CirclePlusIcon, Plus, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { TaskForm } from '@/layouts/form/add-task-form';
+import {PaginatedResponse, Task} from '@/types';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import SmartPagination from '@/components/app-pagination';
 
 
 type PageProps = {
-    tasks: Task[]
+    tasks: PaginatedResponse<Task>
 }
 export default function UserTasks() {
+    const { tasks } = usePage<PageProps>().props;
+
     function getData(): Task[] {
-        const { tasks } = usePage<PageProps>().props;
-        return tasks;
+        return tasks.data;
     }
 
-    const { roleId } = useRole();
-
-    const resetFormRef = useRef<(() => void) | null>(null);
     
 
-    function handleDialogOpenChange(open: boolean): void {
-        if (!open) {
-            resetFormRef.current?.();
-        }
+    const changePage = (page: number) => {
+    router.get('/user-tasks', {
+            page
+        }, {
+            preserveState: true,
+            replace: false
+        });
+    };
 
-        setDialogOpen(open);
-    }
-
-    const [dialogOpen, setDialogOpen] = useState(false);
     return (
         <>
             <Head title="Task" />
@@ -71,31 +71,7 @@ export default function UserTasks() {
                 </div>
 
                 <DataTable columns={taskColumns} data={getData()}/>
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                        <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                        <PaginationLink href="#" isActive>
-                            2
-                        </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                        <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                        <PaginationEllipsis />
-                        </PaginationItem>
-                        <PaginationItem>
-                        <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                    </Pagination>
-                 
+                <SmartPagination currentPage={tasks.current_page} lastPage={tasks.last_page} onPageChange={changePage} />
             </div>
         </>
     );

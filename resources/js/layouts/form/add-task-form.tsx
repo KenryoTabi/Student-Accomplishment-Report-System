@@ -97,8 +97,9 @@ export function TaskForm() {
                                                         message={
                                                             errors[
                                                                 `tasks.${index}`
-                                                            ] ??
-                                                            errors.tasks
+                                                            ]
+                                                                ? 'Cannot add an empty task'
+                                                                : errors.tasks
                                                         }
                                                     />
                                                 </div>
