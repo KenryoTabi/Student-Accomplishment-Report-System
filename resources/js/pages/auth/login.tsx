@@ -15,12 +15,14 @@ type Props = {
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    canRemember: boolean;
 };
 
 export default function Login({
     status,
     canResetPassword,
     canRegister,
+    canRemember
 }: Props) {
     return (
         <>
@@ -73,14 +75,17 @@ export default function Login({
                                 <InputError message={errors.password} />
                             </div>
 
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
+                            { canRemember && (
+                                <div className="flex items-center space-x-3">
+                                    <Checkbox
+                                        id="remember"
+                                        name="remember"
+                                        tabIndex={3}
+                                    />
+                                    <Label htmlFor="remember">Remember me</Label>
+                                </div>
+                            )}
+                            
 
                             <Button
                                 type="submit"

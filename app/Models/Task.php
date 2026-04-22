@@ -6,11 +6,15 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+
+use Database\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 #[Fillable(['user_id', 'report_id', 'task_date', 'description'])]
 class Task extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     public function user()
     {

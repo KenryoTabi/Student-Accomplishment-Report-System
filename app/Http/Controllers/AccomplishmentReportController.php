@@ -16,14 +16,14 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use TCPDF;
 
 class AccomplishmentReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
         $user = Auth::user();
 
         $reportQuery = AccomplishmentReport::query()
@@ -113,16 +113,14 @@ class AccomplishmentReportController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $validated = $request->validate([
             'task_date' => 'required|string',
             'accomplishments' => 'required|array|min:1',
@@ -172,24 +170,21 @@ class AccomplishmentReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AccomplishmentReport $accomplishmentReport)
-    {
+    public function show(AccomplishmentReport $accomplishmentReport) {
         //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AccomplishmentReport $accomplishmentReport)
-    {
+    public function edit(AccomplishmentReport $accomplishmentReport) {
         //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AccomplishmentReport $accomplishmentReport)
-    {
+    public function update(Request $request, AccomplishmentReport $accomplishmentReport) {
         $this->authorizeReportAccess($accomplishmentReport);
 
         $validated = $request->validate([
@@ -257,8 +252,7 @@ class AccomplishmentReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AccomplishmentReport $accomplishmentReport)
-    {
+    public function destroy(AccomplishmentReport $accomplishmentReport) {
         $this->authorizeReportAccess($accomplishmentReport);
 
         DB::transaction(function () use ($accomplishmentReport): void {
@@ -274,8 +268,7 @@ class AccomplishmentReportController extends Controller
         return redirect()->back()->with('success', 'Accomplishment report deleted successfully.');
     }
 
-    protected function authorizeReportAccess(AccomplishmentReport $accomplishmentReport): void
-    {
+    protected function authorizeReportAccess(AccomplishmentReport $accomplishmentReport): void{
         $user = Auth::user();
 
         $canAccessReport = $user->role_id === AppConstants::USER_ROLE_ADMIN
@@ -284,8 +277,7 @@ class AccomplishmentReportController extends Controller
         abort_unless($canAccessReport, 403);
     }
 
-    protected function parseSelectedDates(string $taskDate): Collection
-    {
+    protected function parseSelectedDates(string $taskDate): Collection {
         $selectedDates = collect(explode(',', $taskDate))
             ->map(fn (string $date) => trim($date))
             ->filter()
@@ -317,11 +309,7 @@ class AccomplishmentReportController extends Controller
             ->values();
     }
 
-    protected function prepareReportData(
-        int $userId,
-        Collection $sortedDates,
-        ?AccomplishmentReport $accomplishmentReport = null,
-    ): array {
+    protected function prepareReportData( int $userId, Collection $sortedDates, AccomplishmentReport $accomplishmentReport = null, ): array {
         $startDate = $sortedDates->first()->copy()->format('Y-m-d');
         $endDate = $sortedDates->last()->copy()->format('Y-m-d');
         $selectedDateValues = $sortedDates
@@ -355,8 +343,7 @@ class AccomplishmentReportController extends Controller
         ];
     }
 
-    protected function validateReportTasks(Collection $sortedDates, Collection $tasks): array
-    {
+    protected function validateReportTasks(Collection $sortedDates, Collection $tasks): array {
         $tasksByDate = $tasks->groupBy(function (Task $task) {
             return Carbon::parse($task->task_date)->format('m/d/Y');
         });
@@ -390,15 +377,13 @@ class AccomplishmentReportController extends Controller
         return $errors;
     }
 
-    protected function resolveDefaultSupervisorId(int $userId): ?int
-    {
+    protected function resolveDefaultSupervisorId(int $userId): ?int {
         return Intern::query()
             ->where('user_id', $userId)
             ->value('supervisor_id');
     }
 
-    protected function generateReportCode(): string
-    {
+    protected function generateReportCode(): string {
         do {
             $reportCode = 'AR-'.now()->format('YmdHis').'-'.Str::upper(Str::random(6));
         } while (
@@ -408,5 +393,131 @@ class AccomplishmentReportController extends Controller
         );
 
         return $reportCode;
+    }
+
+    public function generateReportFile(int $reportId): string {
+        $user = Auth::user();
+
+        $pdf = new AccomplishmentPDF(    
+            'P',
+            'mm',     
+            'A4',
+            true,
+            'UTF-8',
+            false
+        );
+
+        $pdf->SetCreator('Laravel App');
+        $pdf->SetAuthor('System');
+        $pdf->SetTitle('User Report');
+
+        
+        $pdf->setUser([
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role_id
+            ]);
+            
+        $pdf->SetMargins(25.4, 15, 25.4);
+        $pdf->AddPage();
+
+        $pdf->setSignatories([
+                'name' => $user->name,
+                'title' => ($user->role_id == AppConstants::USER_ROLE_STUDENT) ? "OJT Student’s Signature" : "Employee Signature"
+            ],
+            [
+                'name' => 'Jane Smith',
+                'title' => 'Field Supervisor’s Name & Signature'
+            ]
+        );
+
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(true);     
+
+        return response($pdf->Output('report.pdf', 'D'), 200)
+            ->header('Content-Type', 'application/pdf');
+    }
+}
+
+
+class AccomplishmentPDF extends TCPDF{
+    private $user;
+    private $accomplishmentPeriod;
+    
+    private $leftSignatory;
+    private $rightSignatory;
+    
+    public function setUser($user) {
+        $this->user = $user;
+    }
+
+    public function setSignatories($left, $right) {
+        $this->leftSignatory = $left;
+        $this->rightSignatory = $right;
+    }
+
+    public function setAccomplishmentPeriod($period) {
+        $this->accomplishmentPeriod = $period;
+    }
+
+    // HEADER
+    public function Header() {
+
+        $dswdHeader = public_path('storage/images/dswd-header.png');
+        $this->Image($dswdHeader, 15.4, 3.9, 60);
+
+        $this->setY(25);
+
+        // Title
+        $this->SetFont('helvetica', 'B', 14);
+        $this->Cell(0, 6, 'MAIN TITLE', 0, 1, 'C');
+
+        // Document Title
+        $this->SetFont('helvetica', '', 12);
+        $this->Cell(0, 6, 'Document Title Here', 0, 1, 'C');
+
+        // Date
+        $this->SetFont('helvetica', '', 10);
+        $this->Cell(0, 6, 'Date: ' . date('Y-m-d'), 0, 1, 'C');
+
+        $this->Ln(5);
+
+        // User details (left aligned)
+        $this->SetFont('helvetica', '', 10);
+
+        $this->Cell(0, 5, 'Name: ' . ($this->user['name'] ?? ''), 0, 1, 'L');
+        $this->Cell(0, 5, 'Email: ' . ($this->user['email'] ?? ''), 0, 1, 'L');
+        $this->Cell(0, 5, 'Role: ' . ($this->user['role'] ?? ''), 0, 1, 'L');
+    }
+
+    public function Footer() {
+        $this->SetY(-40); // position from bottom
+
+        $this->SetFont('helvetica', 'B', 10);
+        
+        // ===== LEFT COLUMN =====
+        $this->SetX(20);
+        $this->Cell(80, 5, strtoupper($this->leftSignatory['name']) ?? '', 'B', 0, 'C');
+        $this->Ln(5);
+        
+        $this->SetFont('helvetica', '', 10);
+        $this->SetX(20);
+        $this->Cell(80, 5, $this->leftSignatory['title'] ?? '', 0, 0, 'C');
+        
+        
+        $this->SetFont('helvetica', 'B', 10);
+        
+        // ===== RIGHT COLUMN =====
+        $this->SetY(-40); // reset vertical position
+        $this->SetX(110);
+        
+        $this->SetX(110);
+        $this->Cell(80, 5, strtoupper($this->rightSignatory['name']) ?? '', 'B', 0, 'C');
+        $this->Ln(5);
+        
+        $this->SetFont('helvetica', '', 10);
+ 
+        $this->SetX(110);
+        $this->Cell(80, 5, $this->rightSignatory['title'] ?? '', 0, 0, 'C');
     }
 }

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 
 use Inertia\Inertia;
 use App\Constants\AppConstants;
+use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FA\Support\Constants;
 
 class TaskController extends Controller
@@ -25,29 +26,31 @@ class TaskController extends Controller
         $user = Auth::user();
         $taskQuery = Task::query()
             ->with(['user'])
-            ->orderByDesc('task_date')
-            ->orderByDesc('created_at');
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id');
 
         switch ($user->role_id) {
             case AppConstants::USER_ROLE_ADMIN: 
-                $accomplishments = $taskQuery->get();
                 break;
 
             case AppConstants::USER_ROLE_SUPERVISOR:
-                $accomplishments = $taskQuery->whereHas('user', function ($query) use ($user) {
+                $taskQuery->whereHas('user', function ($query) use ($user) {
                     $query->where('id', $user->id);
-                })->get();
+                });
                 break;
 
             case AppConstants::USER_ROLE_STUDENT:
-                $accomplishments = $taskQuery->where('user_id', $user->id)->get();
+                $taskQuery->where('user_id', $user->id);
                 break;
 
             default:
-                $accomplishments = collect(); // Empty collection for unknown roles
+                $tasks = collect(); // Empty collection for unknown roles
         }
+
+        $tasks = $taskQuery->paginate(10)->withQueryString();
+
         return Inertia::render('user-tasks', [
-            'tasks' => $accomplishments->map(function (Task $accomplishment) {
+            'tasks' => $tasks->through(function (Task $accomplishment) {
                 return [
                     'id' => $accomplishment->id,
                     'user' => $accomplishment->user?->name,
@@ -57,7 +60,7 @@ class TaskController extends Controller
                     'description' => $accomplishment->description,
                     'status' => $accomplishment->status,
                 ];
-            }),
+            })
         ]);
     }
 

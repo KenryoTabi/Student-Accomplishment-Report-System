@@ -20,9 +20,19 @@ export default function Welcome({
                     rel="stylesheet"
                 />
             </Head>
-            <AuthLayout>
-                <LogInLayout canRegister={false} canResetPassword={true} />
+
+            
+            <AuthLayout
+                title='Log in to your account'
+                description='Enter your email and password below to log in'
+            >
+                <LogInLayout canRegister={false} canResetPassword={false} canRemember={false} />
             </AuthLayout>
         </>
     );
 }
+
+Welcome.layout = {
+    title: 'Log in to your account',
+    description: 'Enter your email and password below to log in',
+};

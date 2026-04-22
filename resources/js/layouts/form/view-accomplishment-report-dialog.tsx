@@ -1,5 +1,6 @@
 import AccomplishmentReportController from '@/actions/App/Http/Controllers/AccomplishmentReportController';
-import type { AccomplishmentReport, Task } from '@/components/columns';
+import type { AccomplishmentReport } from '@/components/columns';
+import { Task } from '@/types';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-picker';
@@ -271,6 +272,10 @@ export default function ViewAccomplishmentReportDialog({
                     });
                 }
 
+                function handleGenerateFile(): void {
+                    window.open(AccomplishmentReportController.generateReportFile.url(report.id), '_blank')
+                }
+
                 return (
                     <form
                         className="flex flex-col gap-4"
@@ -436,18 +441,10 @@ export default function ViewAccomplishmentReportDialog({
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    disabled
+                                    onClick={handleGenerateFile}
                                 >
                                     <Printer className="size-4" />
                                     Print to PDF
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    disabled
-                                >
-                                    <FileDown className="size-4" />
-                                    Export File
                                 </Button>
                             </div>
 
