@@ -57,7 +57,7 @@ class AccomplishmentReportController extends Controller
                 $tasks = collect();
         }
 
-        $tasks = $taskQuery->paginate(10)->withQueryString();
+        $tasks = $taskQuery->get();
         $reports = $reportQuery->paginate(10)->withQueryString();
 
         return Inertia::render('user-accomplishments', [
@@ -84,7 +84,7 @@ class AccomplishmentReportController extends Controller
                     'supervisor_name' => $report->supervisor?->name,
                 ];
             }),
-            'tasks' => $tasks->through(function (Task $task) {
+            'tasks' => $tasks->map(function (Task $task) {
                 return [
                     'id' => $task->id,
                     'user_id' => $task->user_id,
@@ -398,6 +398,28 @@ class AccomplishmentReportController extends Controller
     public function generateReportFile(int $reportId): string {
         $user = Auth::user();
 
+        $report = AccomplishmentReport::query()
+            ->with(['user', 'supervisor'])
+            ->where('id', $reportId)
+            ->firstOrFail();
+
+        $this->authorizeReportAccess($report);
+        $owner = $report->user;
+
+        $intern = Intern::query()
+            ->with(['user'])
+            ->where('user_id', $owner->id)
+            ->first();
+
+        $tasks = Task::query()
+            ->with(['user'])
+            ->where('report_id', $reportId)
+            ->orderBy('task_date')
+            ->get()
+            ->groupBy('task_date');
+
+        
+        
         $pdf = new AccomplishmentPDF(    
             'P',
             'mm',     
@@ -410,29 +432,60 @@ class AccomplishmentReportController extends Controller
         $pdf->SetCreator('Laravel App');
         $pdf->SetAuthor('System');
         $pdf->SetTitle('User Report');
-
         
         $pdf->setUser([
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role_id
+            'name' => $owner->name,
+            'course' => $intern?->course,
+            'school' => $intern?->school,
             ]);
-            
-        $pdf->SetMargins(25.4, 15, 25.4);
-        $pdf->AddPage();
+
+        $pdf->setAccomplishmentPeriod(
+            Carbon::parse($report->start_date)->format('m/d/Y') . ' - ' .
+            Carbon::parse($report->end_date)->format('m/d/Y')
+        );
+        
 
         $pdf->setSignatories([
-                'name' => $user->name,
-                'title' => ($user->role_id == AppConstants::USER_ROLE_STUDENT) ? "OJT Student’s Signature" : "Employee Signature"
+                'name' => $owner->name,
+                'title' => ($owner->role_id == AppConstants::USER_ROLE_STUDENT) ? "OJT Student’s Signature" : "Employee Signature"
             ],
             [
-                'name' => 'Jane Smith',
+                'name' => $report->supervisor?->name,
                 'title' => 'Field Supervisor’s Name & Signature'
             ]
         );
 
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(true);     
+        $pdf->setPrintHeader(true);
+        $pdf->setPrintFooter(true);
+
+        $pdf->SetMargins(25.4, 70, 25.4);
+        $pdf->SetHeaderMargin(10);
+        $pdf->setAutoPageBreak(true, 60);
+
+        $html = "<table border=\"1\" cellpadding=\"5\">
+            <thead>
+                <tr>
+                    <th width=\"30%\" align=\"center\"><b>Date</b></th>
+                    <th width=\"70%\" align=\"center\"><b>Accomplishments</b></th>
+                </tr>
+            </thead>
+            <tbody>";
+        foreach ($tasks as $date => $tasksForDate) {
+            $formattedDate = Carbon::parse($date)->format('m/d/Y');
+            $html .= "<tr nobr=\"true\">
+                <td width=\"30%\" align=\"center\">{$formattedDate}</td>
+                <td width=\"70%\" align=\"left\">
+                <ul style=\"margin: 0; padding-left: 20px;\">";
+
+            foreach ($tasksForDate as $task) {
+                $html .= "<li style=\"margin-bottom: 5px;\">{$task->description}</li>";
+            }
+            $html .= "</ul></td></tr>";
+        }
+        $html .= "</tbody></table>";
+
+        $pdf->AddPage();
+        $pdf->writeHTML($html);   
 
         return response($pdf->Output('report.pdf', 'D'), 200)
             ->header('Content-Type', 'application/pdf');
@@ -464,60 +517,57 @@ class AccomplishmentPDF extends TCPDF{
     public function Header() {
 
         $dswdHeader = public_path('storage/images/dswd-header.png');
+        $titleLable = $this->user['school'] ? 'STUDENT TRAINING PROGRAM' : '';
+        $documentTitle = $this->user['school']? 'Detailed Weekly Accomplishment Report' : 'Accomplishment Report';
         $this->Image($dswdHeader, 15.4, 3.9, 60);
 
         $this->setY(25);
 
         // Title
-        $this->SetFont('helvetica', 'B', 14);
-        $this->Cell(0, 6, 'MAIN TITLE', 0, 1, 'C');
+        $this->SetFont('helvetica', 'BU', 14);
+        $this->Cell(0, 6, $titleLable, 0, 1, 'C');
 
         // Document Title
-        $this->SetFont('helvetica', '', 12);
-        $this->Cell(0, 6, 'Document Title Here', 0, 1, 'C');
+        $this->SetFont('helvetica', 'BU', 12);
+        $this->Cell(0, 6, $documentTitle, 0, 1, 'C');
 
         // Date
         $this->SetFont('helvetica', '', 10);
-        $this->Cell(0, 6, 'Date: ' . date('Y-m-d'), 0, 1, 'C');
+        $this->Cell(0, 6, 'Period: ' . $this->accomplishmentPeriod, 0, 1, 'C');
 
         $this->Ln(5);
 
         // User details (left aligned)
         $this->SetFont('helvetica', '', 10);
 
-        $this->Cell(0, 5, 'Name: ' . ($this->user['name'] ?? ''), 0, 1, 'L');
-        $this->Cell(0, 5, 'Email: ' . ($this->user['email'] ?? ''), 0, 1, 'L');
-        $this->Cell(0, 5, 'Role: ' . ($this->user['role'] ?? ''), 0, 1, 'L');
+        $this->Cell(0, 5, 'NAME: ' . ($this->user['name'] ?? ''), 0, 1, 'L');
+        $this->Cell(0, 5, 'SCHOOL: ' . ($this->user['school'] ?? ''), 0, 1, 'L');
+        $this->Cell(0, 5, 'COURSE: ' . ($this->user['course'] ?? ''), 0, 1, 'L');
     }
 
     public function Footer() {
-        $this->SetY(-40); // position from bottom
+        $this->setY(-60);
+        $this->SetFont('helvetica', 'B', 10);
+        $this->Cell(80, 5, 'Prepared By:', '', 0, 'L');
 
-        $this->SetFont('helvetica', 'B', 10);
+        $this->SetX(110);
+        $this->Cell(80, 5, 'Supervised By:', '', 0, 'L');
+        $this->Ln(20);
         
-        // ===== LEFT COLUMN =====
+        $this->SetFont('helvetica', 'B', 10);
         $this->SetX(20);
-        $this->Cell(80, 5, strtoupper($this->leftSignatory['name']) ?? '', 'B', 0, 'C');
+        $this->Cell(60, 5, strtoupper($this->leftSignatory['name']) ?? '', 'B', 0, 'C');
+
+        $this->SetX(130);
+        $this->Cell(60, 5, strtoupper($this->rightSignatory['name']) ?? '', 'B', 0, 'C');
         $this->Ln(5);
         
         $this->SetFont('helvetica', '', 10);
+
         $this->SetX(20);
-        $this->Cell(80, 5, $this->leftSignatory['title'] ?? '', 0, 0, 'C');
-        
-        
-        $this->SetFont('helvetica', 'B', 10);
-        
-        // ===== RIGHT COLUMN =====
-        $this->SetY(-40); // reset vertical position
-        $this->SetX(110);
-        
-        $this->SetX(110);
-        $this->Cell(80, 5, strtoupper($this->rightSignatory['name']) ?? '', 'B', 0, 'C');
-        $this->Ln(5);
-        
-        $this->SetFont('helvetica', '', 10);
- 
-        $this->SetX(110);
-        $this->Cell(80, 5, $this->rightSignatory['title'] ?? '', 0, 0, 'C');
+        $this->Cell(60, 5, $this->leftSignatory['title'] ?? '', 0, 0, 'C');
+
+        $this->SetX(130);
+        $this->Cell(60, 5, $this->rightSignatory['title'] ?? '', 0, 0, 'C');      
     }
 }

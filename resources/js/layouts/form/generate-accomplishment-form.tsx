@@ -45,7 +45,7 @@ export function GenerateAccomplishmentForm() {
 
     const tasksByDate = tasks.reduce<Record<string, string[]>>(
         (groupedTasks, task) => {
-            if (!task.task_date || task.report_id != null) {
+            if (!task.task_date) {
                 return groupedTasks;
             }
 

@@ -14,7 +14,7 @@ class InternsTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('interns')->insert([
-            'user_id' => 1,
+            'user_id' => 3,
             'school' => 'Iloilo Science And Technology University',
             'course' => 'Computer Science',
             'supervisor_id' => 2,
